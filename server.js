@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import http from "http";
-
+import db from "./lib/db.js";
 // app config
 const app = express();
 const server = http.createServer(app);
@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // test route
-app.get("/", (req, res) => {
+app.get("/api/status", (req, res) => {
   res.send("API Working 🚀");
 });
 

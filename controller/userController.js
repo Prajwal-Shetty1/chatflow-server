@@ -1,11 +1,11 @@
 import db from "../lib/db.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { generateToken } from "../lib/utils.js";
 
 /* ================= REGISTER(Signup) ================= */
 export const registerUser = async (req, res) => {
     try {
-        const { fullName, email, password, bio } = req.body;
+        let { fullName, email, password, bio } = req.body;
 
         // validation
         if (!fullName || !email || !password || !bio) {
@@ -29,15 +29,71 @@ export const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // insert user
-        await db
+        const [result] = await db
             .promise()
             .query(
                 "INSERT INTO users (fullName, email, password, bio) VALUES (?, ?, ?, ?)",
                 [fullName, email, hashedPassword, bio]
             );
+        // create token
+        const token = generateToken(result.insertId);
 
-        res.status(201).json({ message: "User registered successfully" });
+
+        res.json({
+            success: true, token, user: {
+                userId: result.insertId,
+                fullName,
+                email,
+                bio
+            }, message: "User registered successfully"
+        });
     } catch (err) {
+        console.log(err);
         res.status(500).json({ error: err.message });
     }
 };
+
+
+/* ================= LOGIN ================= */
+export const loginUser = async (req, res) => {
+    try {
+        let { email, password } = req.body;
+        // validation
+        if (!email || !password) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        email = email.trim().toLowerCase();
+
+        // find user
+        const [user] = await db
+            .promise()
+            .query("SELECT * FROM users WHERE email = ?", [email]);
+
+        if (user.length === 0) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        // compare password
+        const isMatch = await bcrypt.compare(password, user[0].password);
+
+        if (!isMatch) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+        // create token
+        const token = generateToken(user[0].id);
+
+
+        res.json({
+            success: true, token, user: {
+                userId:user[0].id,
+                fullName:user[0].fullName,
+                email:user[0].email,
+                bio:user[0].bio,
+            }, message: "Login successful"
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: err.message });
+    }
+}

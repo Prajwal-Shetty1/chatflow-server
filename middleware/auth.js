@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import db from "../lib/db.js";
 
-export const protect = async (req, res, next) => {
+export const protectRoute = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
 

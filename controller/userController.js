@@ -1,6 +1,7 @@
 import db from "../lib/db.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../lib/utils.js";
+import cloudinary from '../lib/cloudinary.js';
 
 /* ================= REGISTER(Signup) ================= */
 export const registerUser = async (req, res) => {
@@ -86,10 +87,10 @@ export const loginUser = async (req, res) => {
 
         res.json({
             success: true, token, user: {
-                userId:user[0].id,
-                fullName:user[0].fullName,
-                email:user[0].email,
-                bio:user[0].bio,
+                userId: user[0].id,
+                fullName: user[0].fullName,
+                email: user[0].email,
+                bio: user[0].bio,
             }, message: "Login successful"
         });
     } catch (err) {
@@ -100,6 +101,42 @@ export const loginUser = async (req, res) => {
 
 
 //Contoller to check if user is authenticated
-export const checkAuth = (req,res) => {
-    res.json({success:true,user:req.user});
+export const checkAuth = (req, res) => {
+    res.json({ success: true, user: req.user });
+}
+
+//Controller to update user profile details
+export const updateProfile = (req, res) => {
+    try {
+        const { fullName, bio } = req.body;
+        const userId = req.user.id;
+        let profilePicUrl = null;
+        if (profilePic) {
+            await db
+                .promise()
+                .query(
+                    "UPDATE users SET fullName = ?, bio = ?, profilePic = ? WHERE id = ?",
+                    [fullName, bio, profilePicUrl, userId]
+                );
+        } else {
+            await db
+                .promise()
+                .query(
+                    "UPDATE users SET fullName = ?, bio = ? WHERE id = ?",
+                    [fullName, bio, userId]
+                );
+        }
+        // get updated user
+        const [user] = await db
+            .promise()
+            .query(
+                "SELECT id, fullName, email, bio, profilePic FROM users WHERE id = ?",
+                [userId]
+            );
+
+        res.json({success: true,user: user[0], });
+    } catch (error) {
+        console.log(err);
+        res.status(500).json({ error: err.message });
+    }
 }

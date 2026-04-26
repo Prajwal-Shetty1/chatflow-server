@@ -1,7 +1,7 @@
 import express from "express";
-import { checkAuth, loginUser, registerUser } from "../controller/userController.js";
+import { checkAuth, loginUser, registerUser, updateProfile } from "../controller/userController.js";
 import { protectRoute } from "../middleware/auth.js";
-import {upload} from "../middleware/upload.js";
+import upload from "../middleware/upload.js";
 
 const userRouter = express.Router();
 
@@ -13,4 +13,6 @@ userRouter.post("/login",loginUser);
 userRouter.get("/check",protectRoute,checkAuth);
 
 //Update profile (with image)
-router.put("/update-profile",protect,upload.single("image"),updateProfile);
+userRouter.put("/update-profile",protectRoute,upload.single("image"),updateProfile);
+
+export default userRouter;

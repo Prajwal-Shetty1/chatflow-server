@@ -106,12 +106,18 @@ export const checkAuth = (req, res) => {
 }
 
 //Controller to update user profile details
-export const updateProfile = (req, res) => {
+export const updateProfile = async(req, res) => {
     try {
         const { fullName, bio } = req.body;
         const userId = req.user.id;
         let profilePicUrl = null;
-        if (profilePic) {
+        //if image exists
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path);
+      profilePicUrl = result.secure_url;
+    }
+      //update DB
+        if (profilePicUrl) {
             await db
                 .promise()
                 .query(
@@ -136,7 +142,7 @@ export const updateProfile = (req, res) => {
 
         res.json({success: true,user: user[0], });
     } catch (error) {
-        console.log(err);
-        res.status(500).json({ error: err.message });
+        console.log(error);
+        res.status(500).json({ error: error.message });
     }
 }

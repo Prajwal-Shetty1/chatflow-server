@@ -1,4 +1,4 @@
-import db from "../lib/db";
+import db from "../lib/db.js";
 
 // Get users for left sidebar (with unseen count-no of unread messages for each users)
 
@@ -31,6 +31,7 @@ export const getUsersForSidebar = async (req, res) => {
 }
 
 // Get all messages between logged-in user and selected user
+
 export const getMessages = async (req,res) => {
     try {
     const userId = req.user.id;  //logged-in user
@@ -64,8 +65,46 @@ export const getMessages = async (req,res) => {
 } catch (error) {
     console.log(error);
     res.status(500).json({error:error.message});
-}
-    
+}   
 }
 
 
+//Send Messages to the selected users
+
+export const sendMessage = async(req,res) => {
+    try {
+        const senderId = req.user.id;
+        const {id: receiverId} = req.params;
+        const {text} = req.body;
+
+        let imageUrl = null;
+
+        //if image exists
+        if(req.file){
+            const result = await cloudinary.uploader.upload(req.file.path);
+            imageUrl = result.secure_url;
+        }
+        //insert message
+        const [result] = await
+        db.promise()
+        .query(`
+            INSERT INTO messages(senderId,receiverId,text,image,seen)
+            VALUES (?,?,?,?,?,false),
+            [senderId,receiverId,text || null,imageUrl]
+            `);
+
+        res.json({success:true,
+            message: {
+                id: result.insertId,
+                senderId,
+                receiverId,
+                text,image:imageUrl,
+                seen:false
+            },
+        });
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({error:error.message})
+    }
+}

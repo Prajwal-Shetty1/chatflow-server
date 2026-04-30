@@ -1,14 +1,14 @@
 import express from "express";
 import { protectRoute } from "../middleware/auth.js";
 import { getMessages, getUsersForSidebar, sendMessage } from "../controller/messageController.js";
+import upload from "../middleware/upload.js";
 
+const messageRouter = express.Router();
 
-const messsageRouter = express.Router();
+messageRouter.get("/users",protectRoute,getUsersForSidebar);
 
-messsageRouter.get("/users",protectRoute,getUsersForSidebar);
-
-messsageRouter.get("/:id",protectRoute,getMessages);
+messageRouter.get("/:id",protectRoute,getMessages);
 
 messageRouter.post("/send/:id",protectRoute, upload.single("image"),sendMessage);
 
-export default messsageRouter;
+export default messageRouter;

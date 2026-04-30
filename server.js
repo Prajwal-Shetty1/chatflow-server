@@ -4,6 +4,7 @@ import "dotenv/config";
 import http from "http";
 import db from "./lib/db.js";
 import userRoutes from "./routes/userRoutes.js";
+import messsageRouter from "./routes/messageRoutes.js";
 
 // app config
 const app = express();
@@ -21,6 +22,9 @@ app.get("/api/status", (req, res) => {
 
 //userRoutes setup
 app.use("/api/users", userRoutes);
+
+//messageRoutes setup
+app.use("/api/messages", messsageRouter);
 
 // start server
 server.listen(PORT, () => {

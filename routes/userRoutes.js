@@ -13,6 +13,6 @@ userRouter.post("/login",loginUser);
 userRouter.get("/check",protectRoute,checkAuth);
 
 //Update profile (with image)
-userRouter.put("/update-profile",protectRoute,upload.single("image"),updateProfile);
+userRouter.put("/update-profile",protectRoute,upload.single("profilePic"),updateProfile);
 
 export default userRouter;

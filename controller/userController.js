@@ -2,6 +2,7 @@ import db from "../lib/db.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../lib/utils.js";
 import cloudinary from '../lib/cloudinary.js';
+import fs from "fs";
 
 /* ================= REGISTER(Signup) ================= */
 export const registerUser = async (req, res) => {
@@ -106,43 +107,52 @@ export const checkAuth = (req, res) => {
 }
 
 //Controller to update user profile details
-export const updateProfile = async(req, res) => {
-    try {
-        const { fullName, bio } = req.body;
-        const userId = req.user.id;
-        let profilePicUrl = null;
-        //if image exists
+export const updateProfile = async (req, res) => {
+  try {
+    const { fullName, bio } = req.body;
+    const userId = req.user.id;
+    let profilePicUrl = null;
+
+    // if image exists
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path);
       profilePicUrl = result.secure_url;
-    }
-      //update DB
-        if (profilePicUrl) {
-            await db
-                .promise()
-                .query(
-                    "UPDATE users SET fullName = ?, bio = ?, profilePic = ? WHERE id = ?",
-                    [fullName, bio, profilePicUrl, userId]
-                );
-        } else {
-            await db
-                .promise()
-                .query(
-                    "UPDATE users SET fullName = ?, bio = ? WHERE id = ?",
-                    [fullName, bio, userId]
-                );
-        }
-        // get updated user
-        const [user] = await db
-            .promise()
-            .query(
-                "SELECT id, fullName, email, bio, profilePic FROM users WHERE id = ?",
-                [userId]
-            );
 
-        res.json({success: true,user: user[0], });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error.message });
+      // ✅ delete local file
+      if (fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
     }
-}
+
+    // update DB
+    if (profilePicUrl) {
+      await db
+        .promise()
+        .query(
+          "UPDATE users SET fullName = ?, bio = ?, profilePic = ? WHERE id = ?",
+          [fullName, bio, profilePicUrl, userId]
+        );
+    } else {
+      await db
+        .promise()
+        .query(
+          "UPDATE users SET fullName = ?, bio = ? WHERE id = ?",
+          [fullName, bio, userId]
+        );
+    }
+
+    // get updated user
+    const [user] = await db
+      .promise()
+      .query(
+        "SELECT id, fullName, email, bio, profilePic FROM users WHERE id = ?",
+        [userId]
+      );
+
+    res.json({ success: true, user: user[0] });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};

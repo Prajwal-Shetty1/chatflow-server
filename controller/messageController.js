@@ -89,9 +89,9 @@ export const sendMessage = async (req, res) => {
             db.promise()
                 .query(`
             INSERT INTO messages(senderId,receiverId,text,image,seen)
-            VALUES (?,?,?,?,?,false),
-            [senderId,receiverId,text || null,imageUrl]
-            `);
+            VALUES (?,?,?,?,?)`,
+            [senderId,receiverId,text || null,imageUrl,false]
+            );
         //Emit the new message to the receivers socket
         const receiverSocketId = userSocketmap[receiverId];
 

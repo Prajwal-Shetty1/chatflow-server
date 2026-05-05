@@ -84,29 +84,45 @@ export const sendMessage = async (req, res) => {
             const result = await cloudinary.uploader.upload(req.file.path);
             imageUrl = result.secure_url;
         }
+
+
         //insert message
         const [result] = await
             db.promise()
                 .query(`
             INSERT INTO messages(senderId,receiverId,text,image,seen)
             VALUES (?,?,?,?,?)`,
-            [senderId,receiverId,text || null,imageUrl,false]
-            );
+                    [senderId, receiverId, text || null, imageUrl, false]
+                );
+
+
+        //CREATE MESSAGE OBJECT
+        const newMessage = {
+            id: result.insertId,
+            senderId,
+            receiverId,
+            text,
+            image: imageUrl,
+            seen: false,
+            createdAt: new Date().toISOString()
+        };
+
         //Emit the new message to the receivers socket
         const receiverSocketId = userSocketmap[receiverId];
 
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("newMessage", newMessage);
         }
-
         res.json({
             success: true,
             message: {
                 id: result.insertId,
                 senderId,
                 receiverId,
-                text, image: imageUrl,
-                seen: false
+                text,
+                image: imageUrl,
+                seen: false.valueOf,
+                createdAt: new Date().toISOString()
             },
         });
 

@@ -1,3 +1,4 @@
+import { v2 as cloudinary } from "cloudinary";
 import db from "../lib/db.js";
 import { io, userSocketmap } from "../server.js";
 // Get users for left sidebar (with unseen count-no of unread messages for each users)
@@ -81,7 +82,8 @@ export const sendMessage = async (req, res) => {
 
         //if image exists
         if (req.file) {
-            const result = await cloudinary.uploader.upload(req.file.path);
+            const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+            const result = await cloudinary.uploader.upload(base64);
             imageUrl = result.secure_url;
         }
 
@@ -121,7 +123,7 @@ export const sendMessage = async (req, res) => {
                 receiverId,
                 text,
                 image: imageUrl,
-                seen: false.valueOf,
+                seen: false,
                 createdAt: new Date().toISOString()
             },
         });

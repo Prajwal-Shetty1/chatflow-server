@@ -80,10 +80,13 @@ export const sendMessage = async (req, res) => {
 
         let imageUrl = null;
 
-        //if image exists
+        //if image,video exists
         if (req.file) {
-            const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
-            const result = await cloudinary.uploader.upload(base64);
+
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                resource_type: "auto"
+            });
+
             imageUrl = result.secure_url;
         }
 

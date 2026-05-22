@@ -32,6 +32,37 @@ io.on("connection",(socket)=> {
 
   //Emit online users to all connected clients
   io.emit("getOnlineUsers",Object.keys(userSocketmap));
+
+// ── CALL EVENTS ────────────────────────────
+
+  socket.on("call-user", ({ to, from, signal, callType }) => {
+    const receiverSocketId = userSocketmap[to];
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("incoming-call", { from, signal, callType });
+    }
+  });
+
+  socket.on("call-accepted", ({ to, signal }) => {
+    const callerSocketId = userSocketmap[to];
+    if (callerSocketId) {
+      io.to(callerSocketId).emit("call-accepted", { signal });
+    }
+  });
+
+  socket.on("call-rejected", ({ to }) => {
+    const callerSocketId = userSocketmap[to];
+    if (callerSocketId) {
+      io.to(callerSocketId).emit("call-rejected");
+    }
+  });
+
+  socket.on("call-ended", ({ to }) => {
+    const receiverSocketId = userSocketmap[to];
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("call-ended");
+    }
+  });
+
   socket.on("disconnect", () => {
   if (userId) {
     console.log("User Disconnected",userId);

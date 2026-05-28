@@ -12,6 +12,7 @@ export const getUsersForSidebar = async (req, res) => {
         u.id,
         u.fullName,
         u.email,
+        u.bio,
         u.profilePic,
         COUNT(m.id) AS unseenCount
       FROM users u

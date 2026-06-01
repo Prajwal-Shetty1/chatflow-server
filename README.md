@@ -60,7 +60,7 @@ The platform uses Socket.IO for real-time messaging and WebRTC for peer-to-peer 
 ## 📸 Application Preview
 
 <p align="center">
-  <img src="src/assets/chatflow-preview.png" alt="ChatFlow Preview" width="100%">
+  <img src="README-assets/backend-preview.png" alt="Backend Preview" width="100%">
 </p>
 
 

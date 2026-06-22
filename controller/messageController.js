@@ -96,9 +96,11 @@ export const sendMessage = async (req, res) => {
         const [result] = await
             db.promise()
                 .query(`
-            INSERT INTO messages(senderId,receiverId,text,image,seen)
-            VALUES (?,?,?,?,?)`,
-                    [senderId, receiverId, text || null, imageUrl, false]
+            INSERT INTO messages(senderId,receiverId,text,image,seen,messageType)
+            VALUES (?,?,?,?,?,?)`,
+                    [senderId, receiverId, text || null, imageUrl, false,
+                        imageUrl ? (imageUrl.includes("/video/") ? "video" : "image") : "text"
+                    ]
                 );
 
 
@@ -110,6 +112,9 @@ export const sendMessage = async (req, res) => {
             text,
             image: imageUrl,
             seen: false,
+            messageType: imageUrl
+                ? (imageUrl.includes("/video/") ? "video" : "image")
+                : "text",
             createdAt: new Date().toISOString()
         };
 
@@ -128,6 +133,10 @@ export const sendMessage = async (req, res) => {
                 text,
                 image: imageUrl,
                 seen: false,
+
+                messageType: imageUrl
+                    ? (imageUrl.includes("/video/") ? "video" : "image")
+                    : "text",
                 createdAt: new Date().toISOString()
             },
         });
@@ -137,3 +146,43 @@ export const sendMessage = async (req, res) => {
         res.status(500).json({ error: error.message })
     }
 }
+//save a call as a chat message.
+export const saveCallLog = async (req, res) => {
+    try {
+        const senderId = req.user.id;
+        const { id: receiverId } = req.params;
+        const { messageType } = req.body;
+
+        const [result] = await db.promise().query(
+            `INSERT INTO messages
+            (senderId, receiverId, seen, messageType)
+            VALUES (?, ?, ?, ?)`,
+            [senderId, receiverId, false, messageType]
+        );
+
+        const message = {
+            id: result.insertId,
+            senderId,
+            receiverId,
+            seen: false,
+            messageType,
+            createdAt: new Date().toISOString()
+        };
+        // Send call log instantly to receiver
+        const receiverSocketId = userSocketmap[receiverId];
+
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("newMessage", message);
+        }
+
+
+        res.json({success: true,message});
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};

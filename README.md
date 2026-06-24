@@ -40,6 +40,8 @@ The platform uses Socket.IO for real-time messaging and WebRTC for peer-to-peer 
 * Video Sharing
 * Audio Calling
 * Video Calling
+* Audio/Video Call Records in Chat History
+* Smart Date Grouping (Today, Yesterday, Custom Dates)
 * Message Timestamps
 * Responsive User Interface
 
@@ -60,7 +62,15 @@ The platform uses Socket.IO for real-time messaging and WebRTC for peer-to-peer 
 ## 📸 Application Preview
 
 <p align="center">
-  <img src="README-assets/backend-preview.png" alt="Backend Preview" width="100%">
+  <img src="README-assets/backend-preview.png" alt="ChatFlow Preview" width="100%">
+</p>
+
+<p align="center">
+  <img src="README-assets/login.png" alt="Register/Login" width="100%">
+</p>
+
+<p align="center">
+  <img src="README-assets/phone.png" alt="AudioCall" width="100%">
 </p>
 
 

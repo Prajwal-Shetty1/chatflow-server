@@ -65,12 +65,11 @@ The platform uses Socket.IO for real-time messaging and WebRTC for peer-to-peer 
   <img src="README-assets/backend-preview.png" alt="ChatFlow Preview" width="100%">
 </p>
 
-<p align="center">
-  <img src="README-assets/login.png" alt="Register/Login" width="100%">
-</p>
+---
 
-<p align="center">
-  <img src="README-assets/phone.png" alt="AudioCall" width="100%">
-</p>
+## 🎥 Demo
 
+[![ChatFlow Demo](https://img.youtube.com/vi/7InWeJ2bKJs/0.jpg)](https://youtu.be/7InWeJ2bKJs)
+
+*Click the thumbnail above to watch the full demo on YouTube*
 
